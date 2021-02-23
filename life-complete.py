@@ -20,13 +20,13 @@ class Cell():
 
     def countNeighbours(self, cells):
         neighbourcount = 0
-        for xdiff in range (-1,2):
-            for ydiff in range(-1,2):
-                neighbourx = self.col + xdiff
-                neighboury = self.row + ydiff
-                if neighbourx < 0 or neighbourx > len(cells)-1 or neighboury < 0 or neighboury > len(cells)-1 or(xdiff == 0 and ydiff == 0):
+        for coldiff in range (-1,2):
+            for rowdiff in range(-1,2):
+                neighbourcol = self.col + coldiff
+                neighbourrow = self.row + rowdiff
+                if neighbourcol < 0 or neighbourcol > len(cells)-1 or neighbourrow < 0 or neighbourrow > len(cells)-1 or(coldiff == 0 and rowdiff == 0):
                     continue
-                neighbourcount += cells[neighboury][neighbourx].value
+                neighbourcount += cells[neighbourrow][neighbourcol].value
         return neighbourcount
 
 
