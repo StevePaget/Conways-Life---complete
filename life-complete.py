@@ -1,11 +1,13 @@
 import tkinter as tk
 from tkinter import font as tkFont
+from time import perf_counter
 
 class Cell():
     def __init__(self, row, col, id, board):
         self.row = row
         self.col = col
         self.id = id
+        self.oldvalue = 0
         self.value = 0
         self.board = board
         self.colours = ["white", "black"]
@@ -16,15 +18,17 @@ class Cell():
 
     def setValue(self, value):
         self.value = value
-        self.board.itemconfig(self.id, fill=self.colours[self.value])
+        if self.value != self.oldvalue:
+            self.board.itemconfig(self.id, fill=self.colours[self.value])
+        self.oldvalue = self.value
 
     def countNeighbours(self, cells):
         neighbourcount = 0
         for coldiff in range (-1,2):
             for rowdiff in range(-1,2):
-                neighbourcol = self.col + coldiff
-                neighbourrow = self.row + rowdiff
-                if neighbourcol < 0 or neighbourcol > len(cells)-1 or neighbourrow < 0 or neighbourrow > len(cells)-1 or(coldiff == 0 and rowdiff == 0):
+                neighbourcol = (self.col + coldiff)% len(cells)
+                neighbourrow = (self.row + rowdiff)% len(cells)
+                if (coldiff == 0 and rowdiff == 0):
                     continue
                 neighbourcount += cells[neighbourrow][neighbourcol].value
         return neighbourcount
@@ -52,6 +56,7 @@ class App(tk.Tk):
         self.goButton = tk.Button(self, text="Go!", width=10, font = self.buttonfont, command=self.stopgo, bg="green")
         self.goButton.grid(row=0, column=0)
         self.running = False
+        self.lastPerf = perf_counter()
         self.mainloop()
 
     def drawgrid(self):
@@ -99,7 +104,7 @@ class App(tk.Tk):
     def simulate(self):
         # Make a new 2D array to represent the new grid
         newgrid = [ [0 for x in range(900//self.cellSize)] for y in range(900//self.cellSize)]
-        # Loop through the 2D array of existing cells (self.cells)...
+        # Loop through the 2D array of existing cells (self.cells)...``
         for row in range(0,900//self.cellSize):
             for col in range(0,900//self.cellSize):
                 newgrid[row][col] = self.cells[row][col].value
@@ -116,7 +121,9 @@ class App(tk.Tk):
         for row in range(0,900//self.cellSize):
             for col in range(0,900//self.cellSize):
                 self.cells[row][col].setValue(newgrid[row][col])
+        #print(perf_counter()-self.lastPerf)
+        self.lastPerf = perf_counter()
         if self.running:
-            self.after(500, self.simulate)
+            self.after(100, self.simulate)
 
 main = App()
